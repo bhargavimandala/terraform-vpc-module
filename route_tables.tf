@@ -28,18 +28,16 @@ resource "aws_default_route_table" "private_route" {
  #Associate Public Subnet with Public Route Table
 
 resource "aws_route_table_association" "public_subnet_assoc" {
-  count          = 2
-  route_table_id = "${aws_route_table.public_route.id}"
-  subnet_id      = "${aws_subnet.public_subnet.*.id[count.index]}"
-  depends_on     = ["aws_route_table.public_route", "aws_subnet.public_subnet"]
+  count          = length(split(",", var.public_subnets))
+  route_table_id = element(aws_route_table.public_route.*.id, count.index)
+  subnet_id      = element(aws_subnet.public_subnets.*.id, count.index)
 }
 
 
 #Associate Public Subnet with Public Route Table
 resource "aws_route_table_association" "private_subnet_assoc" {
-  count          = 2
-  route_table_id = "${aws_default_route_table.private_route.id}"
-  subnet_id      = "${aws_subnet.private_subnet.*.id[count.index]}"
-  depends_on     = ["aws_default_route_table.private_route", "aws_subnet.private_subnet"]
+  count          = length(split(",", var.private_subnets))
+  route_table_id = element(aws_default_route_table.private_route.*.id, count.index)
+  subnet_id      = element(aws_subnet.private_subnets.*.id, count.index)
 }
 
